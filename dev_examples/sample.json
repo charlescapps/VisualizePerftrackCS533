@@ -1,0 +1,57 @@
+{
+    "experiment": {
+        "title": "Low Density Even",
+        "trials": [
+            {
+                "trial":1,
+                "readings": [
+                    {
+                        "date":"2011-05-05 13:37:50",
+                        "OutDoorTemp":73.71,
+                        "QualityCode":192,
+                        "TowerTotKW":114.9},
+                    {
+                        "date":"2011-05-05 13:38:19.99",
+                        "OutDoorTemp":73.71,
+                        "QualityCode":192,
+                        "TowerTotKW":85.3},
+                    {
+                        "date":"2011-05-05 13:38:48.987",
+                        "OutDoorTemp":73.71,
+                        "QualityCode":192,
+                        "TowerTotKW":85.3},
+                    {
+                        "date":"2011-05-05 13:39:20",
+                        "OutDoorTemp":73.71,
+                        "QualityCode":192,
+                        "TowerTotKW":84.8}
+                ]
+            },
+            {
+                "trial":2,
+                "readings": [
+                    {
+                        "date":"2011-05-05 13:47:20",
+                        "OutDoorTemp":73.84,
+                        "QualityCode":192,
+                        "TowerTotKW":117.1},
+                    {
+                        "date":"2011-05-05 13:47:49.977",
+                        "OutDoorTemp":73.84,
+                        "QualityCode":192,
+                        "TowerTotKW":118.8},
+                    {
+                        "date":"2011-05-05 13:48:19.99",
+                        "OutDoorTemp":73.84,
+                        "QualityCode":192,
+                        "TowerTotKW":117.7},
+                    {
+                        "date":"2011-05-05 13:48:49.983",
+                        "OutDoorTemp":73.84,
+                        "QualityCode":192,
+                        "TowerTotKW":114.9}
+                ]
+            }
+        ]
+    }
+}
