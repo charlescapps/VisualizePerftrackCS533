@@ -25,6 +25,12 @@ $(window).load (function() {
 });
 
 
+$(window).resize (function() {
+	WIDTH = $("#main3d").width(); HEIGHT = $("#main3d").height();
+	camera.aspect = WIDTH / HEIGHT;
+	camera.updateProjectionMatrix();
+	renderer.setSize( WIDTH, HEIGHT );
+});
 
 // initializes the 3D environment
 function setup3D() {
