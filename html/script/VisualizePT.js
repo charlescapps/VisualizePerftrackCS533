@@ -81,7 +81,7 @@ function setup3D() {
     target = new THREE.Vector3();
 	
 	// setup materials
-	rack_mat = new THREE.MeshPhongMaterial( { color: 0x111111, ambient: 0x000000, shininess: 4 } );
+	rack_mat = new THREE.MeshPhongMaterial( { color: 0x111111, ambient: 0x000000, shininess: 4, specular: 0xFFFFFF } );
 }
 
 
@@ -167,11 +167,13 @@ function createLab() {
 				// create nodes
 				geo = new THREE.CubeGeometry(	rackstats.depth, rackstats.maxnodes * U, rackstats.width,
 																			1, rackstats.maxnodes, 1, null, { py: false, ny: false }  );
-				mat = [ new THREE.MeshPhongMaterial( { color : 0x000099, vertexColors: THREE.VertexColors, shininess: 4 } ),
+				mat = [ new THREE.MeshPhongMaterial( { color : 0x000099, vertexColors: THREE.VertexColors, shininess: 4, specular: 0xFFFFFF } ),
 							new THREE.MeshBasicMaterial( { color: 0xFFFFFF, wireframe: true, wireframeLinewidth: 3, transparent: true, opacity: 0.1 } ) ];
 				this_rack.nodemesh = new THREE.SceneUtils.createMultiMaterialObject( geo, mat );
 				this_rack.nodemesh.position.set( cur_x, rack_height - (rackstats.maxnodes * U / 2) - rackstats.top, cur_z );
+				geo.dynamic = true;
 				for ( i = 0; i < rack_numnodes; i++ ) {
+					this_rack.node[i].geo = geo;
 					this_rack.node[i].faces = [];
 					for ( j = 0; j < 4; j++ )
 						this_rack.node[i].faces.push( geo.faces[j * rackstats.maxnodes + i] );
@@ -209,7 +211,7 @@ function createLab() {
 	
 	// create room
 	var geo = new THREE.CubeGeometry( 317.5, 120, 317.5, 20, 8, 20 );
-	var materials = [	new THREE.MeshPhongMaterial( { color : 0xFFFFFF, shading : THREE.SmoothShading, shininess : 5 } ),
+	var materials = [	new THREE.MeshPhongMaterial( { color : 0xFFFFFF, shading : THREE.SmoothShading, shininess : 5, specular: 0xFFFFFF } ),
 				new THREE.MeshBasicMaterial( { color : 0x444444, shading : THREE.FlatShading, wireframe : true, wireframeLinewidth : 4, opacity : 0.3, transparent : true } ) ];
 			
 	var room_mesh = THREE.SceneUtils.createMultiMaterialObject( geo, materials );
@@ -278,7 +280,10 @@ function setNodeTemp( node_no, temp_in, temp_out ) {
 	red = Math.floor(temp_out * (0x0000FF / 100.0)).toString( 16 );
 	color = "0x" + red + "00" + blue;
 	
-	node[node_no].faces.color.setHex( color );
+	for ( var j = 0; j < 4; j++ )
+		node[node_no].faces[j].color.setHex( parseInt( color ) );
+		
+	node[node_no].geo.colorsNeedUpdate = true;
 }
 
 
