@@ -29,6 +29,7 @@ $(window).load( function() {
 		$("#main3d").bind( "mousemove", function( event ) {
 			mouse = event.pageX - $("#main3d").position().left - $("#main3d").width() / 2;
 		});
+		$("#main3d").trigger( "mousemove" );
 	});
 	
 	$("body").mouseup( function() {
@@ -263,6 +264,13 @@ function createLab() {
 	animate();
 	
 }
+
+
+
+function setNodeTemp( node_no, temp_in, temp_out ) {
+	
+}
+
 
 
 // animation loop function
