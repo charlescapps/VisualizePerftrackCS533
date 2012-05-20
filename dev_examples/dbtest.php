@@ -1,5 +1,14 @@
 <?php
-$db = pg_connect('host=db.cecs.pdx.edu port=5432 dbname=ccapps user=ccapps password=perftrack') or die('Could not connect');
+error_reporting(E_ERROR | E_WARNING | E_PARSE | E_COMPILE_ERROR);
+
+//Super cheap way to avoid putting charles's pw on github.
+//When you run this yourself, just put a password.txt file in the directory
+//and put just the password in the file
+$pwfile = fopen('password.txt', 'r');
+$pw = fgets($pwfile);
+fclose($pwfile);
+
+$db = pg_connect('host=db.cecs.pdx.edu port=5432 dbname=ccapps user=ccapps password='.$pw) or die('Could not connect');
 
 echo pg_last_error($db);
 
