@@ -26,10 +26,10 @@ $(window).load( function() {
 	
 	$("#main3d").mousedown( function() {
 		mouse_decay = false;
+		mouse = 0;
 		$("#main3d").bind( "mousemove", function( event ) {
 			mouse = event.pageX - $("#main3d").position().left - $("#main3d").width() / 2;
 		});
-		$("#main3d").trigger( "mousemove" );
 	});
 	
 	$("body").mouseup( function() {
@@ -266,11 +266,20 @@ function createLab() {
 }
 
 
-
+// sets the color of a node based on incoming/outgoing air temperatures
+// normalized on a 0-99 scale
+// this will eventually show both incoming and outgoing temperatures simultaneously
+// but for now, it will just show outgoing air temperature for testing purposes
 function setNodeTemp( node_no, temp_in, temp_out ) {
+	var color, red, blue;
+	temp_out %= 100;
 	
+	blue = Math.floor(0x0000FF - temp_out * (0x0000FF / 100.0) ).toString( 16 );
+	red = Math.floor(temp_out * (0x0000FF / 100.0)).toString( 16 );
+	color = "0x" + red + "00" + blue;
+	
+	node[node_no].faces.color.setHex( color );
 }
-
 
 
 // animation loop function
