@@ -1,0 +1,20 @@
+<lab>
+	<!-- rack stats that are common across all racks -->
+	<rackstats maxnodes="28" base="9" top="3" width="19" depth="26" />
+	
+	<!-- first row is on the "left" side of the aisle; last row is on the "right" side -->
+	<aisle width="50" spacebetween="15">
+		<row spacebetween="5">
+			<rack name="A4" type="node" cooling="air" nodes="28" />
+			<rack name="A3" type="node" cooling="air" nodes="28" />
+			<rack name="A2" type="network" cooling="air" nodes="0" />
+			<rack name="A1" type="node" cooling="spray" nodes="28" />
+		</row>
+		<row spacebetween="5">
+			<rack name="B1" type="node" cooling="spray" nodes="28" />
+			<rack name="B2" type="node" cooling="spray" nodes="28" />
+			<rack name="B3" type="node" cooling="spray" nodes="27" />
+			<rack name="B4" type="node" cooling="spray" nodes="25" />
+		</row>
+	</aisle>
+</lab>
