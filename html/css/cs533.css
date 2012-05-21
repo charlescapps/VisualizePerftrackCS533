@@ -17,7 +17,7 @@ div#main3d
 	position: absolute;
 	background-color: #ffffff;
 	left: 5%;
-	top: 5%;
+	top: 50px;
 	margin: auto;
 	padding: 0;
 	border: 2;
@@ -25,4 +25,26 @@ div#main3d
 	border-color: #999999;
 	width: 90%;
 	height: 90%
+}
+
+.icon-wrapper
+{
+	display: inline-block; 
+	padding: 4px 0;
+}
+.ui-icon
+{
+	margin: 0 4px;
+}
+#slider
+{
+	width: 400px; 
+	display: inline-block; 
+	margin: -3px 15px;
+}
+#controls
+{
+	width: 600px;
+	height: 50px;
+	margin: 10px auto;
 }
