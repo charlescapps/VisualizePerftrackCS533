@@ -1,1 +1,5 @@
 parse_power_data/bin/*
+dev_examples/password.txt
+.DS_Store
+
+parse_power_data/fix_data
