@@ -1,19 +1,12 @@
 package cs533; 
 
-import java.io.BufferedReader;
-import java.io.IOException;
-
 import java.sql.Connection; 
-import java.sql.ResultSet;
 import java.sql.Statement; 
 import java.sql.DriverManager; 
 import java.sql.SQLException;
 
-import java.text.DateFormat;
-import java.text.ParseException;
-
 import java.util.ArrayList;
-import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 
 public class CreateRandom {
@@ -65,12 +58,13 @@ public class CreateRandom {
     private static final double SIN_AMPLITUDE = 15.0; 
     private static final double STD_DEV = 0.5; 
 
-    private static final int NUM_PER_NODE = 500; 
+    private static final int NUM_PER_NODE = 1000; 
     private static final String EXP_STR = "LD_even"; 
     private final static int MIN_TRIAL = 1; 
     private final static int MAX_TRIAL = 3; 
 
     private final List<String> RACK_STRS; 
+    private final HashMap<String, List<Integer>> NODES_IN_RACK; 
     private final List<Integer> NODES; 
     private static final double SIN_FREQ = 8.0*2.0*Math.PI/((double)NUM_PER_NODE);
     private static final int FREQ_VAR = 3; 
@@ -93,6 +87,49 @@ public class CreateRandom {
         RACK_STRS.add("B2"); 
         RACK_STRS.add("B3"); 
         RACK_STRS.add("B4"); 
+        NODES_IN_RACK = new HashMap<String, List<Integer>>(); 
+
+        List<Integer> a1 = new ArrayList<Integer>(); 
+        a1.add(56); 
+        a1.add(70); 
+        a1.add(83); 
+        NODES_IN_RACK.put("A1", a1); 
+
+        List<Integer> a3 = new ArrayList<Integer>(); 
+        a3.add(28); 
+        a3.add(42); 
+        a3.add(55); 
+        NODES_IN_RACK.put("A3", a3); 
+
+        List<Integer> a4 = new ArrayList<Integer>(); 
+        a4.add(0); 
+        a4.add(14); 
+        a4.add(27); 
+        NODES_IN_RACK.put("A4", a4); 
+
+        List<Integer> b1 = new ArrayList<Integer>(); 
+        b1.add(84);
+        b1.add(98); 
+        b1.add(111); 
+        NODES_IN_RACK.put("B1", b1); 
+
+        List<Integer> b2 = new ArrayList<Integer>(); 
+        b2.add(112);
+        b2.add(126); 
+        b2.add(139); 
+        NODES_IN_RACK.put("B2", b2); 
+
+        List<Integer> b3 = new ArrayList<Integer>(); 
+        b3.add(140); 
+        b3.add(154);
+        b3.add(166); 
+        NODES_IN_RACK.put("B3", b3); 
+
+        List<Integer> b4 = new ArrayList<Integer>(); 
+        b4.add(167); 
+        b4.add(181);
+        b4.add(191); 
+        NODES_IN_RACK.put("B4", b4); 
 
         NODES.add(0); 
         NODES.add(14);  
@@ -117,6 +154,7 @@ public class CreateRandom {
         NODES.add(191);  
         
     }
+
     
     private double getNextFreq() {
         int freq_delta = rand.nextInt(FREQ_VAR); 
@@ -136,7 +174,7 @@ public class CreateRandom {
 
         for (int t = MIN_TRIAL; t <= MAX_TRIAL; t++) {
             for (String rack: RACK_STRS) {
-                for (Integer node: NODES) {
+                for (Integer node: NODES_IN_RACK.get(rack)) {
                     double cpufreq = getNextFreq(); 
                     double dimmfreq = getNextFreq(); 
                     double airinfreq = getNextFreq(); 
