@@ -12,7 +12,7 @@ $db = pg_connect('host=db.cecs.pdx.edu port=5432 dbname=ccapps user=ccapps passw
 
 echo pg_last_error($db);
 
-$query = "SELECT * FROM tower";
+$query = "SELECT * FROM rack_level_data LIMIT 500";
 
 $result = pg_query($query);
 if (!$result) {
@@ -23,12 +23,26 @@ if (!$result) {
 
 echo "<table>";
 
+$prevrow = array();
+
+
 while ($row = pg_fetch_assoc($result)) {
+    if (empty($prevrow)) { //If we don't have a prevrow, this is the first
+        echo "<tr>";
+        foreach ($row as $key =>$value)
+            echo "<td>$key</td>";
+        echo "</tr>";
+        $prevrow = $row;
+    }
     echo "<tr>";
-    echo "<td>" . $row['data_type'] . "</td>";
-    echo "<td>" . $row['date'] . "</td>";
-    echo "<td>" . $row['data_value'] . "</td>";
+    foreach( $row as $key => $value){
+        if ($prevrow[$key] == $value)
+    	    echo "<td>" . $value . "</td>";
+    	else
+    	    echo "<td bgcolor='red'>" . $value . "</td>";
+    }
     echo "</tr>";
+    $prevrow = $row;
 }
 
 echo "</table>";
