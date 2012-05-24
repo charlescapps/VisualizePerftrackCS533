@@ -1,5 +1,5 @@
 This is a small program that takes a tab-delimited text file with perftrack
-data and push it to a remote database. 
+data and pushes it to a remote database. 
 
 Usage is: 
 
