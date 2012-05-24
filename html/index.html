@@ -3,11 +3,26 @@
 	<head>
 		<title>Visualize PerfTrack CS533</title>
 		<link rel="stylesheet" type="text/css" href="css/cs533.css" /> <!-- this page's CSS file -->
-		<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.4/jquery.min.js"></script> <!-- JQuery -->
+		<link rel="stylesheet" type="text/css" href="css/custom-theme/jquery-ui-1.8.20.custom.css" /> <!-- jQueryUI CSS -->
+		
+		<script type="text/javascript" src="script/jquery-1.7.2.min.js"></script> <!-- JQuery -->
+		<script type="text/javascript" src="script/jquery-ui-1.8.20.custom.min.js"></script> <!-- JQueryUI -->
 		<script type="text/javascript" src="script/Three.js"></script> <!-- THREE.js for 3d graphics -->
 		<script type="text/javascript" src="script/VisualizePT.js"></script> <!-- 3D functionality JavaScript	-->
+		<script type="text/javascript" src="script/SliderControl.js"></script> <!-- Slider control for play/pause -->
+		
+	
 	</head>
 	<body>
+		<div id="controls"> 
+		<span id="play" class="ui-state-default icon-wrapper ui-corner-all" ><span  class="ui-icon ui-icon-play">Play</span></span>
+		<span id="pause" class="ui-state-default icon-wrapper ui-corner-all" style="display:none;" ><span  class="ui-icon ui-icon-pause">Pause</span></span>
+		<div id="slider" style=""></div>
+		<span id="open" class="ui-state-default icon-wrapper ui-corner-all" ><span  class="ui-icon ui-icon-folder-open">Open</span></span>
+		
+		</div>
+		
+		
 		<div id="main3d"></div>
 	</body>
 </html>

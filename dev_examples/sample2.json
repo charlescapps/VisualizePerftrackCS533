@@ -1,0 +1,24 @@
+{
+	time: 0
+	nodes  {
+				node: 1
+				tempIn : 12
+				tempOut : 8
+	
+			}
+			{
+				node: 2
+				tempIn : 11
+				tempOut : 14
+	
+			}
+
+	racks	{
+				rack: A1
+				power: 17
+			}
+			{
+				rack: A2
+				power: 19
+			}
+}
