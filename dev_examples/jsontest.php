@@ -3,15 +3,12 @@ error_reporting(E_ERROR | E_WARNING | E_PARSE | E_COMPILE_ERROR);
 
 function generate_node_json($trial = 1, $low = 50, $high = 100, $limit = 100)
 {
-	//Three steps:
-	// - Connect to db using password retrieved from password.txt
-	// - Run query and set up empty arrays
-	// - Build the giant array
 
+//  ***** Database connection and query *****
 
-	//When you run this yourself, just put a password.txt file in the directory
-	//and put just the password in the file
-	$pwfile = fopen('password.txt', 'r');
+	//NOTE: To run this script, put a password.txt in your folder with Charles's
+	//db password in it.  I did it this way to avoid putting it on github!
+	$pwfile = fopen('password.txt', 'r'); 
 	$pw = fgets($pwfile);
 	fclose($pwfile);
 	
@@ -29,6 +26,10 @@ function generate_node_json($trial = 1, $low = 50, $high = 100, $limit = 100)
 	    echo pg_last_error();
 	    exit();
 	}	
+	
+//  ***** Building the array 
+
+	// See sample2.json in the dev_examples folder for an example of the output of this file
 
 	$prevtime = NULL;
 	$tick_data = NULL;
