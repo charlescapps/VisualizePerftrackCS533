@@ -1,6 +1,9 @@
 <?php
 error_reporting(E_ERROR | E_WARNING | E_PARSE | E_COMPILE_ERROR);
 
+// low/high are the expected low and high temperatures, limit is a cheap limit on the number of rows
+// TODO: Allow limit to find the number of timestamp?
+
 function generate_node_json($trial = 1, $low = 50, $high = 150, $limit = 200)
 {
 
