@@ -125,11 +125,6 @@ $(window).load( function() {
 	$.ajax( {type: "GET", url: "script/labconfig.xml", dataType: "xml", success: getLabSetup, error: xmlGetError} );
 	
 	$("#main3d").mousedown( function() {
-	
-		for ( r in rack )
-		setRackEnergy( rack[r].name, Math.round( Math.random() * 99 ) );
-		playAnimations();
-	
 		mouse_decay = false;
 		mouse_x = 0;
 		$("#main3d").bind( "mousemove", function( event ) {
