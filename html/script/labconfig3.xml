@@ -16,6 +16,20 @@
 	
 	<aisle width="50" spacebetween="25">
 		<row spacebetween="8">
+			<rack name="A4" type="node" cooling="air" nodes="28" />
+			<rack name="A3" type="node" cooling="air" nodes="28" />
+			<rack name="A2" type="network" cooling="air" nodes="0" />
+			<rack name="A1" type="node" cooling="spray" nodes="28" />
+		<row spacebetween="8">
+			<rack name="A4" type="node" cooling="air" nodes="28" />
+			<rack name="A3" type="node" cooling="air" nodes="28" />
+			<rack name="A2" type="network" cooling="air" nodes="0" />
+			<rack name="A1" type="node" cooling="spray" nodes="28" />
+		</row>
+	</aisle>
+	
+	<aisle width="50" spacebetween="25">
+		<row spacebetween="8">
 			<rack name="B1" type="node" cooling="spray" nodes="28" />
 			<rack name="B2" type="node" cooling="spray" nodes="28" />
 			<rack name="B3" type="node" cooling="spray" nodes="27" />
