@@ -1,0 +1,13 @@
+initial commit; meshes simplified; room added
+# Please enter the commit message for your changes. Lines starting
+# with '#' will be ignored, and an empty message aborts the commit.
+# On branch master
+# Changes to be committed:
+#   (use "git reset HEAD <file>..." to unstage)
+#
+#	new file:   html/css/cs533.css
+#	new file:   html/index.html
+#	new file:   html/script/Three.js
+#	new file:   html/script/VisualizePT.js
+#	new file:   html/script/labconfig.xml
+#
