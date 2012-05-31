@@ -1,7 +1,7 @@
 <?php
 error_reporting(E_ERROR | E_WARNING | E_PARSE | E_COMPILE_ERROR);
 
-function generate_node_json($trial = 1, $low = 50, $high = 100, $limit = 100)
+function generate_node_json($trial = 1, $low = 50, $high = 150, $limit = 200)
 {
 
 //  ***** Database connection and query *****
@@ -35,6 +35,7 @@ function generate_node_json($trial = 1, $low = 50, $high = 100, $limit = 100)
 	$tick_data = NULL;
 	$timecount = 0;
 	$data = array();
+	$normalize_size = 100 / ($high - $low);
 
 	while ($row = pg_fetch_assoc($result)) {
 	    if ($prevtime != $row['date'])
@@ -45,9 +46,12 @@ function generate_node_json($trial = 1, $low = 50, $high = 100, $limit = 100)
 		    $timecount++;
 	    }
 	    
+	    $tempIn  = round(($row['airintemp']   - $low) * $normalize_size);
+	    $tempOut = round(($row['airexchangetemp'] - $low) * $normalize_size);
+	    
 	    $node_info = array('node'    => $row['node'],
-	    				   'tempIn'  => $row['airintemp'],
-	    				   'tempOut' => $row['airexchangetemp']);
+	    				   'tempIn'  => $tempIn,
+	    				   'tempOut' => $tempOut);
 	    
 	    array_push($tick_data['nodes'], $node_info);
 	    
@@ -62,7 +66,7 @@ function generate_node_json($trial = 1, $low = 50, $high = 100, $limit = 100)
 
 
 	
-print_r(generate_node_json(1, 0, 0, 200));
+print_r(generate_node_json(1, 60, 110, 200));
 
 
 
