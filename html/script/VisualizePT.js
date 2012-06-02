@@ -241,6 +241,8 @@ function createLab() {
 	rack_height = rackstats.base + rackstats.maxnodes * U + rackstats.top;
 	
 	initParticles();
+	
+	$("#main3d img").css( "visibility", "visible" );
 
 	$($lab).find( "aisle" ).each( function() {
 		var aisle_width = parseInt( $(this).attr("width") );
@@ -358,6 +360,7 @@ function createLab() {
 	scene.add( ambient_light );	
 	
 	// start animation
+	$("#main3d img").css( "visibility", "hidden" );
 	animate();
 	
 }
