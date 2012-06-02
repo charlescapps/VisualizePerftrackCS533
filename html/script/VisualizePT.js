@@ -19,18 +19,19 @@ var ROOM_HEIGHT = 130, ROOM_DIM = 317.5;
 var MAX_AZIMUTH = Math.PI / 2;
 var MOUSE_SPEED = 0.0001
 var mouse_decay;
-var rack_mat;						// common rack material
+var rack_mat;						// common rack top/base material
 var rack_name;
+var TMU_DEPTH = 3.5, TMU_WIDTH, TMU_HEIGHT;
 
 // Particle variables
 var particles_playing;
 var particle_geo, particle_mat;
 var emitter = [];
-var NUM_PARTICLES = 200;
-var PARTICLE_SIZE = 15;
+var NUM_PARTICLES = 250;
+var PARTICLE_SIZE = 6;
 var PARTICLE_HUE = 0.1, PARTICLE_SAT = 0.9, PARTICLE_VAL = 0.8;
 var PARTICLE_DRIFT = 0.3, PARTICLE_DRIFT_OFFSET = 0.15, PARTICLE_LIFT = 1.2, PARTICLE_LIFT_RANGE = 1.0, PARTICLE_GRAVITY = 0.055;
-var PARTICLE_EXPECTANCY_RANGE = 4, PARTICLE_EXPECTANCY_MIN = 25;
+var PARTICLE_EXPECTANCY_RANGE = 30, PARTICLE_EXPECTANCY_MIN = 5;
 
 // data globals
 var $lab;			// full input XML file
@@ -55,20 +56,33 @@ function setNodeTemp(	node_no,			// int absolute node ID #
 									temp_in,			// int (0~99) normalized temperature in
 									temp_out ) {		// int (0~99) normalized temperature out
 									
-	var in_color, out_color, red, blue;
+	var red_in, blue_in, red_out, blue_out;
 	temp_in %= 100;
 	temp_out %= 100;
 	
-	// produce node's color
-	blue = Math.floor(0x0000FF - temp_out * (0x0000FF / 99.0) ).toString( 16 );
-	red = Math.floor(temp_out * (0x0000FF / 99.0)).toString( 16 );
-	in_color = "0x" + red + "00" + blue;
+	// calculate in/out color values
+	red_in = (temp_in + 1) / 100.0;
+	blue_in = 1.0 - (temp_in + 1) / 100.0;
+	red_out = (temp_out + 1) / 100.0;
+	blue_out = 1.0 - (temp_out + 1) / 100.0;
 	
 	// set the color of each of the node's faces
-	for ( var j = 0; j < 4; j++ )
-		node[node_no].faces[j].color.setHex( parseInt( in_color ) );
+	for ( var i = 0; i < 4; i++ )
+		node[node_no].faces[0].vertexColors[i].setRGB( red_in, 0, blue_in );
+	for ( var i = 0; i < 4; i++ )
+		node[node_no].faces[1].vertexColors[i].setRGB( red_out, 0, blue_out );
+	node[node_no].faces[2].vertexColors[0].setRGB( red_out, 0, blue_out );
+	node[node_no].faces[2].vertexColors[1].setRGB( red_out, 0, blue_out );
+	node[node_no].faces[2].vertexColors[2].setRGB( red_in, 0, blue_in );
+	node[node_no].faces[2].vertexColors[3].setRGB( red_in, 0, blue_in );
+	node[node_no].faces[3].vertexColors[0].setRGB( red_in, 0, blue_in );
+	node[node_no].faces[3].vertexColors[1].setRGB( red_in, 0, blue_in );
+	node[node_no].faces[3].vertexColors[2].setRGB( red_out, 0, blue_out );
+	node[node_no].faces[3].vertexColors[3].setRGB( red_out, 0, blue_out );
+	
 	// and flag the node's geometry as needing its colors updated in the next refresh	
 	node[node_no].geo.colorsNeedUpdate = true;
+	
 }
 
 
@@ -80,10 +94,73 @@ function setRackEnergy(	rack_name,	// String rack's name ( "A1", "B4", etc )
 					return rack_name == element.name;
 				} )[0];
 	energy %= 100;
+	var face_color = energy / 100.0;
 	
 	this_rack.emitter.rate = energy;
 	this_rack.emitter.lift = PARTICLE_LIFT + ( energy / 100.0 * PARTICLE_LIFT_RANGE - PARTICLE_LIFT_RANGE / 2.0 );
+	this_rack.topface.color.setRGB( face_color, face_color / 1.1, face_color / 1.3 );
+	this_rack.topgeo.colorsNeedUpdate = true;
+	
+}
 
+
+// Sets a given rack's TMU's in- and out- water temperatures
+function setTMUTemp(	rack_name,			// String rack's name ( "A1", "B4", etc )
+									temp_in,				// int (0~99) normalized temperature in
+									temp_out		) {     // int (0~99) normalized temperature out
+									
+	var this_rack = rack.filter( function (element, index, array) {
+					return rack_name == element.name;
+				} )[0];
+	
+	if ( this_rack.cooling == "spray" ) {
+		var red_in, blue_in, red_out, blue_out;
+		temp_in %= 100;
+		temp_out %= 100;
+		
+		// calculate in/out color values
+		red_in = (temp_in + 1) / 100.0;
+		blue_in = 1.0 - (temp_in + 1) / 100.0;
+		red_out = (temp_out + 1) / 100.0;
+		blue_out = 1.0 - (temp_out + 1) / 100.0;
+		
+		// set the color of each of the node's faces
+		for ( var i = 0; i < 4; i++ )
+			this_rack.TMUgeo.faces[1].vertexColors[i].setRGB( red_out, 0, blue_out );
+		this_rack.TMUgeo.faces[2].vertexColors[0].setRGB( red_out, 0, blue_out );
+		this_rack.TMUgeo.faces[2].vertexColors[3].setRGB( red_out, 0, blue_out );
+		this_rack.TMUgeo.faces[2].vertexColors[2].setRGB( red_in, 0, blue_in );
+		this_rack.TMUgeo.faces[2].vertexColors[1].setRGB( red_in, 0, blue_in );
+		this_rack.TMUgeo.faces[3].vertexColors[2].setRGB( red_in, 0, blue_in );
+		this_rack.TMUgeo.faces[3].vertexColors[1].setRGB( red_in, 0, blue_in );
+		this_rack.TMUgeo.faces[3].vertexColors[0].setRGB( red_out, 0, blue_out );
+		this_rack.TMUgeo.faces[3].vertexColors[3].setRGB( red_out, 0, blue_out );
+		
+		// and flag the node's geometry as needing its colors updated in the next refresh	
+		this_rack.TMUgeo.colorsNeedUpdate = true;
+	}
+	
+}
+
+
+// Sets a given rack's TMU's energy usage
+// NOT FULLY IMPLEMENTED
+function setTMUEnergy(	rack_name,			// String rack's name ( "A1", "B4", etc )
+									energy			) {     // int (0~99) normalized energy level
+									
+	var this_rack = rack.filter( function (element, index, array) {
+					return rack_name == element.name;
+				} )[0];						
+	
+	if ( this_rack.cooling == "spray" ) {
+		var green = (energy + 1) / 100.0;
+		
+		for ( var i = 0; i < 4; i++ )
+			this_rack.TMUgeo.faces[0].vertexColors[i].setRGB( 0, green, 0 );
+		this_rack.TMUgeo.colorsNeedUpdate = true;
+	
+	}
+	
 }
 
 
@@ -125,6 +202,16 @@ $(window).load( function() {
 	$.ajax( {type: "GET", url: "script/labconfig.xml", dataType: "xml", success: getLabSetup, error: xmlGetError} );
 	
 	$("#main3d").mousedown( function() {
+		/** TEST HARNESS **********************************
+		for ( r in rack ) {
+			setRackEnergy( rack[r].name, Math.round( Math.random() * 99 ) );
+			setTMUTemp( rack[r].name, Math.round( Math.random() * 99 ), Math.round( Math.random() * 99 ) );
+			setTMUEnergy( rack[r].name, Math.round( Math.random() * 99 ) );
+		}
+		for ( var i = 0; i < node.length; i++ )
+			setNodeTemp( i, Math.round( Math.random()  * 99 ), Math.round( Math.random()  * 99 ) );
+		playAnimations();
+		*********************************************************/
 		mouse_decay = false;
 		mouse_x = 0;
 		$("#main3d").bind( "mousemove", function( event ) {
@@ -158,6 +245,9 @@ $(window).resize( function() {
 
 
 
+
+
+
 // ****** Initializes the 3D environment
 function init3D() {
 
@@ -184,8 +274,11 @@ function init3D() {
     target = new THREE.Vector3();
 	
 	// setup materials
-	rack_mat = new THREE.MeshPhongMaterial( { color: 0x111111, ambient: 0x000000, shininess: 4, specular: 0xFFFFFF } );
+	rack_mat = new THREE.MeshPhongMaterial( { color: 0x111111, vertexColors: THREE.VertexColors, ambient: 0xFFFFFF, shininess: 4, specular: 0xFFFFFF } );
 }
+
+
+
 
 
 
@@ -233,6 +326,8 @@ function getLabSetup( xml ) {
 
 
 
+
+
 // ****** This function creates the lab's 3D objects and associates them with the primary data structures
 function createLab() {
 
@@ -241,13 +336,22 @@ function createLab() {
 	rack_height = rackstats.base + rackstats.maxnodes * U + rackstats.top;
 	
 	initParticles();
+	TMU_HEIGHT = rack_height - rackstats.top;
+	TMU_WIDTH = rackstats.width * 0.4;
+	
+	$("#main3d img").css( "visibility", "visible" );
 
 	$($lab).find( "aisle" ).each( function() {
 		var aisle_width = parseInt( $(this).attr("width") );
 		aisle_spacebetween = parseInt( $(this).attr("spacebetween") );
+		
+		var lastrow_mesh, lastrow_TMU;
+		
 		$(this).find( "row:first, row:last" ).each( function() {
 			var cur_z = 0;
 			var row_spacebetween = parseInt( $(this).attr("spacebetween") );
+			
+			lastrow_mesh = [], lastrow_TMU = [];
 			
 			$(this).find( "rack" ).each( function() {
 				var i, j;
@@ -260,45 +364,38 @@ function createLab() {
 				
 				var geo, mat, this_mesh;
 				
-				// create the name of the rack
-				/*
-				var c = document.createElement( "canvas" );
-				c.getContext("2d").font = "50px, Monospace";
-				c.getContext("2d").fillText( "RACK " + rack_name, 2, 50 );
-				c.width = 50 * 7;
-				c.height = 100;
-				var tex = new THREE.Texture( c );
-				tex.needsUpdate = true;
-				//var mat = new THREE.MeshBasicMaterial( { map: tex } );
-				//mat.transparent = true;
-				//var sprite = new THREE.Sprite( { map: tex, useScreenCoordinates: false, affectedByDistance: true, color: 0xFFFFFF } );
-				//var sprite = new THREE.Mesh( new THREE.PlaneGeometry( rackstats.width, rackstats.width / 10 ), mat );
-				//sprite.rotation.set( Math.PI / 2, 0, Math.PI / 2 );
-				//sprite.doubleSided = true;
-				sprite.position.set( cur_x, rack_height + 5, cur_z );
-				scene.add( sprite );
-				*/
 				
-				// create top of rack
+				//// create top of rack ////
 				geo = new THREE.CubeGeometry( rackstats.depth, rackstats.top, rackstats.width, 1, 1, 1, null, { ny: false } );
+				this_rack.topgeo = geo;
+				this_rack.topface = geo.faces[2];
+				for ( f in geo.faces )
+					geo.faces[f].color.setRGB( 0.1, 0.1, 0.1 );
+				geo.dynamic = true;
 				this_rack.topmesh = new THREE.Mesh( geo, rack_mat );
 				this_rack.topmesh.position.set( cur_x, rack_height - rackstats.top / 2, cur_z );
 				this_rack.topmesh.castShadow = true;
 				scene.add( this_rack.topmesh );
 				
-				// create nodes
+				
+				//// create nodes ////
 				geo = new THREE.CubeGeometry(	rackstats.depth, rackstats.maxnodes * U, rackstats.width,
 																			1, rackstats.maxnodes, 1, null, { py: false, ny: false }  );
-				mat = [ new THREE.MeshPhongMaterial( { color : 0x000099, vertexColors: THREE.VertexColors, shininess: 7, specular: 0xFFFFFF } ),
+				mat = [ new THREE.MeshPhongMaterial( { color : 0x888899, vertexColors: THREE.VertexColors, shininess: 7, specular: 0xFFFFFF } ),
 							new THREE.MeshBasicMaterial( { color: 0xFFFFFF, wireframe: true, wireframeLinewidth: 3, transparent: true, opacity: 0.1 } ) ];
+				this_rack.geo = geo;
 				this_rack.nodemesh = new THREE.SceneUtils.createMultiMaterialObject( geo, mat );
+				lastrow_mesh.push( this_rack.nodemesh );
 				this_rack.nodemesh.position.set( cur_x, rack_height - (rackstats.maxnodes * U / 2) - rackstats.top, cur_z );
 				geo.dynamic = true;
 				for ( i = 0; i < rack_numnodes; i++ ) {
 					this_rack.node[i].geo = geo;
 					this_rack.node[i].faces = [];
-					for ( j = 0; j < 4; j++ )
-						this_rack.node[i].faces.push( geo.faces[j * rackstats.maxnodes + i] );
+					for ( j = 0; j < 4; j++ ) {
+						this_rack.node[i].faces[j] = geo.faces[j * rackstats.maxnodes + i];
+						for ( k = 0; k < 4; k++ )
+							this_rack.node[i].faces[j].vertexColors[k] = new THREE.Color(  0x555566 );
+					}
 				}
 				for ( ; i < rackstats.maxnodes; i++ )
 					for ( j = 0; j < 4; j++ )
@@ -306,23 +403,53 @@ function createLab() {
 				this_rack.nodemesh.children[0].castShadow = true;
 				scene.add( this_rack.nodemesh );
 
-				// create base of rack
+				
+				//// create base of rack ////
 				geo = new THREE.CubeGeometry( rackstats.depth, rackstats.base, rackstats.width, 1, 1, 1, null, { py: false, ny : false } );
+				for ( f in geo.faces )
+					geo.faces[f].color.setRGB( 0.1, 0.1, 0.1 );
 				this_rack.basemesh = new THREE.Mesh( geo, rack_mat );
 				this_rack.basemesh.position.set( cur_x, rackstats.base / 2, cur_z );
 				this_rack.basemesh.castShadow = true;
 				scene.add( this_rack.basemesh );
 				
-				// create rack's particle emitter
-				createEmitter( this_rack, cur_x, rack_height, cur_z );
+				
+				//// create rack's particle emitter ////
+				createEmitter( this_rack, cur_x, rack_height, cur_z, 0xFFA000 );
+								
+								
+				//// create TMU ////
+				if ( $(this).attr( "cooling" ) == "spray" ) {
+					this_rack.cooling = "spray";
+					this_rack.TMUgeo = new THREE.CubeGeometry( TMU_DEPTH, TMU_HEIGHT, TMU_WIDTH, 1, 1, 1, null, { ny : false, px : false } );
+					for ( f in this_rack.TMUgeo.faces )
+						for ( v = 0; v < 4; v++ )
+							this_rack.TMUgeo.faces[f].vertexColors[v] = new THREE.Color( 0x444455 );
+					this_rack.TMUmesh = new THREE.Mesh( this_rack.TMUgeo, rack_mat );
+					this_rack.TMUgeo.dynamic = true;
+					lastrow_TMU.push( this_rack.TMUmesh );
+					this_rack.TMUmesh.position.set( cur_x - rackstats.depth / 2 - TMU_DEPTH / 2, TMU_HEIGHT / 2, cur_z );
+					scene.add( this_rack.TMUmesh );
+				} else {
+					this_rack.cooling = "air";
+				}
 								
 				cur_z += rackstats.width + row_spacebetween;
 			});
+			
+			
 			if ( cur_z > max_z )
 				max_z = cur_z;			
 			cur_x += rackstats.depth + aisle_width;
 		});
-
+		$(this).find( "row:last" ).each( function() {
+			for ( g in lastrow_mesh )
+				lastrow_mesh[g].rotation.y += Math.PI;
+			for ( g in lastrow_TMU ) {
+				lastrow_TMU[g].rotation.y += Math.PI;
+				lastrow_TMU[g].position.x += rackstats.depth + TMU_DEPTH;
+			}
+		});
 		cur_x -= aisle_width - aisle_spacebetween;
 	});
 	
@@ -358,6 +485,7 @@ function createLab() {
 	scene.add( ambient_light );	
 	
 	// start animation
+	$("#main3d img").css( "visibility", "hidden" );
 	animate();
 	
 }
@@ -372,8 +500,8 @@ function initParticles() {
 	var context = canvas.getContext( '2d' );
 	var gradient = context.createRadialGradient( canvas.width / 2, canvas.height / 2, 0, canvas.width / 2, canvas.height / 2, canvas.width / 2 );
 	gradient.addColorStop( 0, 'rgba(255,255,255,.8)' );
-	gradient.addColorStop( 0.2, 'rgba(255,160,0,.6)' );
-	gradient.addColorStop( 0.4, 'rgba(204,85,0,.4)' );
+	gradient.addColorStop( 0.2, 'rgba(255,255,255,.6)' );
+	gradient.addColorStop( 0.4, 'rgba(255,255,255,.3)' );
 	gradient.addColorStop( 1, 'rgba(0,0,0,0)' );
 
 	context.fillStyle = gradient;
@@ -383,9 +511,12 @@ function initParticles() {
 	texture.needsUpdate = true;
 	
 	particle_mat = new THREE.ParticleBasicMaterial( { size: PARTICLE_SIZE,
+																			   color: 0xFFA000,
 																			   map: texture,
 																			   blending: THREE.AdditiveBlending,
-																			   transparent: true } );
+																			   vertexColors: true,
+																			   transparent: true,
+																			   depthTest: false } );
 	
 	particles_playing = false;
 
@@ -397,21 +528,30 @@ function initParticles() {
 function createEmitter  ( cur_rack,		// current rack
 									sys_x,			// float x
 									sys_y,			// float y
-									sys_z ) {		// float z
+									sys_z,			// float z
+									sys_color ) {	// particle colors
 	
 	var e = {};
 	e.geo = new THREE.Geometry();
+	var color = [];
+	var original = [];
 	for ( var i = 0; i < NUM_PARTICLES; i++ ) {
 		var x = rackstats.depth / 2.0 - Math.random() * rackstats.depth;
 		var z = rackstats.width / 2.0 - Math.random() * rackstats.width;
 		var p = new THREE.Vector3( x, -500, z );
+		original.push( new THREE.Vector3( p.x, p.y, p.z ) );
+		color.push( new THREE.Color( sys_color ) );
 		e.geo.vertices.push( p );
 	}
+	e.geo.colors = color;
+	e.init_pos = original;
+	
 	e.sys = new THREE.ParticleSystem( e.geo, particle_mat );
 	e.sys.position.set( sys_x, sys_y, sys_z );
 	e.sys.dynamic = true;
 	e.sys.sortParticles = true;
 	e.particles = [];
+	e.cur_particle = 0;
 	e.rate = 0;
 	e.lift = 0;
 	
@@ -426,17 +566,20 @@ function generateParticles( e ) {
 
 	var r = 100 * Math.random();
 	//if ( r  < e.rate ) {
-	for ( var i = 0; i < Math.floor( r / (100 - e.rate / 1.01)); i++ ) {
+	for ( var i = 0; i < Math.floor( r / (100.0 - e.rate)); i++ ) {
 		var new_particle = {};
-		do {
-			new_particle.vertex = e.geo.vertices[ Math.floor( Math.random() * (NUM_PARTICLES - 1) ) ];
-		} while ( e.particles.indexOf( new_particle.vertex ) != -1 );
+		
+		new_particle.vertex = e.geo.vertices[ e.cur_particle ];
+		new_particle.init_pos = e.init_pos[ e.cur_particle ];
 		new_particle.vertex.y = 0;
 		new_particle.age = 0;
 		new_particle.lifeExpectancy = PARTICLE_EXPECTANCY_MIN + Math.random() * PARTICLE_EXPECTANCY_RANGE;
-		new_particle.velocity = new THREE.Vector3( 0, e.lift, 0 );
+		new_particle.velocity = new THREE.Vector3( 0, e.lift * new_particle.lifeExpectancy / PARTICLE_EXPECTANCY_RANGE, 0 );
 		
 		e.particles.push( new_particle );
+		
+		if ( ++e.cur_particle >= NUM_PARTICLES )
+			e.cur_particle = 0;
 	}
 	
 }
@@ -447,15 +590,14 @@ function ageParticles( e ) {
 
 	for ( p in e.particles ) {
 		if ( ++e.particles[p].age > e.particles[p].lifeExpectancy ) {
-			e.particles[p].vertex.x = rackstats.depth / 2.0 - Math.random() * rackstats.depth;
-			e.particles[p].vertex.y = -500;
-			e.particles[p].vertex.z = rackstats.width / 2.0 - Math.random() * rackstats.width;
+			e.particles[p].vertex.x = e.particles[p].init_pos.x;
+			e.particles[p].vertex.y = e.particles[p].init_pos.y;
+			e.particles[p].vertex.z = e.particles[p].init_pos.z;
 			e.particles.splice( p, 1 );
 		} else {
-			var drift =  PARTICLE_DRIFT_OFFSET - PARTICLE_DRIFT * Math.random();
-			e.particles[p].velocity.x += drift;
+			e.particles[p].velocity.x += PARTICLE_DRIFT_OFFSET - PARTICLE_DRIFT * Math.random();
 			e.particles[p].velocity.y -= PARTICLE_GRAVITY;
-			e.particles[p].velocity.z += drift;
+			e.particles[p].velocity.z += PARTICLE_DRIFT_OFFSET - PARTICLE_DRIFT * Math.random();
 			
 			e.particles[p].vertex.x += e.particles[p].velocity.x;
 			e.particles[p].vertex.y += e.particles[p].velocity.y;
