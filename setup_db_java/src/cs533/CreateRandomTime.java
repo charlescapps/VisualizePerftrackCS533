@@ -9,16 +9,45 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class CreateRandom {
+public class CreateRandomTime {
 
-    private static class Time {
+    public static class Time implements Cloneable {
         public int h; 
         public int m; 
         public int s; 
-        public Time(int hr, int min, int s) {
+        public int ms; 
+        private String startDate; 
+        public Time(int hr, int min, int s, int ms, String startDate) {
             this.h = hr; 
             this.m = min; 
             this.s = s; 
+            this.ms = ms;
+            this.startDate = startDate; 
+        }
+
+        public String addMillis(int millis) {
+            ms+=millis; 
+
+            if (ms >= 1000) {
+                int tmp = ms; 
+                ms = tmp % 1000; 
+                s += tmp / 1000; 
+            }
+
+            if (s >= 60) {
+                int tmp = s; 
+                s = tmp % 60; 
+                m += tmp / 60; 
+            }
+
+            if (m >= 60) {
+                int tmp = m; 
+                m = tmp % 60; 
+                h += tmp / 60; 
+            }
+
+            return this.toString(); 
+
         }
 
         public String addSecond() {
@@ -39,15 +68,23 @@ public class CreateRandom {
 
         @Override
         public String toString() {
-            return CreateRandom.DATE + h + ":" + m + ":" + s; 
+            return startDate + " " + h + ":" + m + ":" + s + "." + ms; 
+        }
+
+        @Override
+        public Object clone() {
+            return new Time(h, m, s, ms, startDate); 
         }
 
     }
 
-    private static final String DATE = "2011-05-05 "; 
-    private static int minHour = 13; 
-    private static int minMins = 36; 
-    private static int minSecs = 00; 
+    
+    private final Time t1StartTime; 
+    private final Time t2StartTime; 
+    private final Time t3StartTime; 
+    private final int t1Inc; 
+    private final int t2Inc; 
+    private final int t3Inc; 
 
     private static final double CPU_TEMP_AVG = 75.0; 
     private static final double DIMM_TEMP_AVG = 110.0; 
@@ -58,8 +95,8 @@ public class CreateRandom {
     private static final double SIN_AMPLITUDE = 25.0; 
     private static final double STD_DEV = 1.5; 
 
-    private static final int NUM_PER_NODE = 1000; 
-    private static final String EXP_STR = "HD_full"; 
+    private static final int NUM_PER_NODE = 250; 
+    private final String EXP_STR;
     private final static int MIN_TRIAL = 1; 
     private final static int MAX_TRIAL = 3; 
 
@@ -78,8 +115,21 @@ public class CreateRandom {
     private String outputTable;
     java.util.Random rand; 
 
-    public CreateRandom(String connectStr, String userName, String pass, 
-            String outputTable) throws SQLException {
+    public CreateRandomTime(String connectStr, String userName, String pass, 
+            String outputTable, Time t1StartTime, int t1DurationMillis, 
+            Time t2StartTime, int t2DurationMillis, 
+            Time t3StartTime, int t3DurationMillis, 
+            String experiment) throws SQLException {
+
+        this.EXP_STR = experiment;
+
+        this.t1StartTime = t1StartTime; 
+        this.t2StartTime = t2StartTime; 
+        this.t3StartTime = t3StartTime; 
+        this.t1Inc = t1DurationMillis / NUM_PER_NODE; 
+        this.t2Inc = t2DurationMillis / NUM_PER_NODE; 
+        this.t3Inc = t3DurationMillis / NUM_PER_NODE; 
+
         this.connexion = DriverManager.getConnection(connectStr, userName, pass); 
         this.outputTable = outputTable;
         this.rand = new java.util.Random(System.currentTimeMillis()); 
@@ -223,6 +273,7 @@ public class CreateRandom {
     public void createRandomTable() 
         throws SQLException {
 
+        createEmptyNodeDataTable(outputTable); 
         Statement newTableStmt = connexion.createStatement();  
 
         for (int t = MIN_TRIAL; t <= MAX_TRIAL; t++) {
@@ -233,9 +284,24 @@ public class CreateRandom {
                     double airinfreq = getNextFreq(); 
                     double airexchangefreq = getNextFreq(); 
                     double asicfreq = getNextFreq(); 
-                    Time time = new Time(minHour, minMins, minSecs); 
+                    Time time; 
+                    int incMs; 
+                    if (t == 1) {
+                        time = (Time)this.t1StartTime.clone(); 
+                        incMs = this.t1Inc; 
+                    }
+                    else if (t == 2) {
+                        time = (Time)this.t2StartTime.clone(); 
+                        incMs = this.t2Inc; 
+                    }
+                    else {
+                        time = (Time)this.t3StartTime.clone(); 
+                        incMs = this.t3Inc; 
+                    }
+
                     for (int row = 0; row < NUM_PER_NODE; row++) {
-                        String timeStr = time.addSecond(); 
+                        String timeStr = time.toString(); 
+                        time.addMillis(incMs); 
                         double cpu0 = CPU_TEMP_AVG + getNextSin(cpufreq, row) + rand.nextGaussian()*STD_DEV; 
                         double cpu1 = CPU_TEMP_AVG + getNextSin(cpufreq, row) + rand.nextGaussian()*STD_DEV; 
                         double cpu_avg = (cpu0+cpu1)/2.0; 
@@ -280,8 +346,7 @@ public class CreateRandom {
             }
         }
             
-        createEmptyNodeDataTable(outputTable); 
-        int[] result = newTableStmt.executeBatch(); 
+        newTableStmt.executeBatch(); 
     }
 
     private String d(double d) {
