@@ -31,7 +31,7 @@ var NUM_PARTICLES = 300;
 var PARTICLE_SIZE = 6.5;
 var PARTICLE_HUE = 0.1, PARTICLE_SAT = 0.9, PARTICLE_VAL = 0.8;
 var PARTICLE_DRIFT = 0.3, PARTICLE_DRIFT_OFFSET = 0.15, PARTICLE_LIFT = 1.2, PARTICLE_LIFT_RANGE = 1.0, PARTICLE_GRAVITY = 0.055;
-var PARTICLE_EXPECTANCY_RANGE = 32, PARTICLE_EXPECTANCY_MIN = 6;
+var PARTICLE_EXPECTANCY_RANGE = 31, PARTICLE_EXPECTANCY_MIN = 5;
 var FIRST_FEW_TICKS = 3.0, LAST_FEW_TICKS = 7.0;
 
 // data globals
@@ -384,9 +384,10 @@ function createLab() {
 				for ( f in geo.faces )
 					geo.faces[f].color.setRGB( 0.1, 0.1, 0.1 );
 				geo.dynamic = true;
-				this_rack.topmesh = new THREE.Mesh( geo, rack_mat );
+				mat = [ rack_mat, makeTextMat( this_rack.name ) ];
+				this_rack.topmesh = new THREE.SceneUtils.createMultiMaterialObject( geo, mat );
 				this_rack.topmesh.position.set( cur_x, rack_height - rackstats.top / 2, cur_z );
-				this_rack.topmesh.castShadow = true;
+				this_rack.topmesh.children[0].castShadow = true;
 				scene.add( this_rack.topmesh );
 				
 				
@@ -503,6 +504,24 @@ function createLab() {
 }
 
 
+function makeTextMat( text ) {
+	var canvas = document.createElement( 'canvas' );
+	var context = canvas.getContext( '2d' );
+	context.font = "16px Arial";
+	context.textBaseline = "top";
+	canvas.height = 16;
+	canvas.width = context.measureText( text ).width;
+	context.fillStyle="#000000";
+	context.fillRect( 0, 0, canvas.width, canvas.height );
+	context.fillStyle="#FFFFFF";
+	context.fillText( text, 0, 0 );
+	
+	var texture = new THREE.Texture( canvas );
+	texture.needsUpdate = true;
+	
+	return new THREE.MeshBasicMaterial( { size: 10, color: 0xFFFFFF, map: texture, blending: THREE.AdditiveBlending, transparent: true } );
+}
+
 function initParticles() {
 
 	var canvas = document.createElement( 'canvas' );
@@ -523,7 +542,7 @@ function initParticles() {
 	texture.needsUpdate = true;
 	
 	particle_mat = new THREE.ParticleBasicMaterial( { size: PARTICLE_SIZE,
-																			   color: 0xDDDDDD,
+																			   color: 0xEEEEEE,
 																			   map: texture,
 																			   blending: THREE.AdditiveBlending,
 																			   vertexColors: true,
