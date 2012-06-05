@@ -9,7 +9,10 @@ body
 	border: 0;
 	width: 100%;
 	height: 100%;
-	overflow: none
+	overflow: none;
+	font-size: 12px;
+	
+	
 }
 
 div.main-viewport
@@ -17,7 +20,7 @@ div.main-viewport
 	position: absolute;
 	background-color: #AAAABB;
 	left: 5%;
-	top: 50px;
+	top: 70px;
 	margin: auto;
 	padding: 0;
 	border-style: solid;
@@ -55,6 +58,10 @@ div#main3d img {
 	margin: 0 4px;
 }
 
+.ui-widget
+{
+	font-size: 14px !important;
+}
 
 #slider
 {
@@ -66,7 +73,20 @@ div#main3d img {
 
 #controls
 {
-	width: 500px;
+	width: 680px;
 	height: 50px;
 	margin: 10px auto;
+}
+
+
+#clock
+{
+	height: 15px;
+	display: inline-block; 
+	border: 1px solid silver;
+	margin: 0px 5px;
+	color: silver;
+	padding: 6px;
+	font-size: 12px;
+/*	display:none; */
 }
