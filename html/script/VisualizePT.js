@@ -86,6 +86,29 @@ function setNodeTemp(	node_no,			// int absolute node ID #
 	
 }
 
+// sets the node's colors to gray
+function inactivateNode( node_no ) {
+	
+	// set the color of each of the node's faces
+	for ( var i = 0; i < 4; i++ )
+		for ( var j = 0; j < 4; j++ )
+			node[node_no].faces[i].vertexColors[j].setRGB( 0.3, 0.3, 0.3 );
+	
+	// and flag the node's geometry as needing its colors updated in the next refresh	
+	node[node_no].geo.colorsNeedUpdate = true;
+	
+}
+
+
+// sets the node's colors to gray
+function inactivateAllNodes() {
+	
+	// for each node
+	for ( var n = 0; n < node.length; n++ )
+		inactivateNode( n );
+	
+}
+
 
 // Sets the sparkiness of a rack based on its power usage, normalized on a 0-99 scale
 function setRackEnergy(	rack_name,	// String rack's name ( "A1", "B4", etc )
@@ -220,8 +243,12 @@ $(window).load( function() {
 			setTMUTemp( rack[r].name, Math.round( Math.random() * 99 ), Math.round( Math.random() * 99 ) );
 			//setTMUEnergy( rack[r].name, Math.round( Math.random() * 99 ) );
 		}
-		for ( var i = 0; i < node.length; i++ )
-			setNodeTemp( i, Math.round( Math.random()  * 99 ), Math.round( Math.random()  * 99 ) );
+		for ( var i = 0; i < node.length; i++ ) {
+			if ( Math.random() > 0.5 )
+				setNodeTemp( i, Math.round( Math.random()  * 99 ), Math.round( Math.random()  * 99 ) );
+			else
+				inactivateNode( i );
+		}
 		playAnimations();
 		/*********************************************************/
 		mouse_decay = false;
