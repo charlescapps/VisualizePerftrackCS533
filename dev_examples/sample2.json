@@ -1,5 +1,5 @@
 {
-	time: 0
+	time: 2012-05-12 12:00:00
 	nodes  {
 				node: 1
 				tempIn : 12
@@ -16,9 +16,13 @@
 	racks	{
 				rack: A1
 				power: 17
+				tmuTempIn: 22
+				tmuTempOut: 55
 			}
 			{
 				rack: A2
 				power: 19
+				tmuTempIn: 22
+				tmuTempOut: 55		
 			}
 }
