@@ -88,8 +88,8 @@ function generate_node_json($db_table = 'ld_node_data_rand', $trial = 1, $low = 
 	{
 		
 		$power = round(max($row['powerkwh'] - 150, 1) * $power_norm_size) - 1;
-		$tmuTempIn = round(max($row['waterinlettemp'] - $low, 1) * $normalize_size) - 1;
-		$tmuTempOut = round(max($row['wateroutlettemp'] - $low, 1) * $normalize_size) - 1;
+		$tmuTempIn = round(max($row['waterinlettemp'] - 60, 1) * 6) - 1;
+		$tmuTempOut = round(max($row['wateroutlettemp'] - 60, 1) * 6) - 1;
 		
 		$rack_power_current[$row['rack']] = $power;
 		$rack_tempIn_current[$row['rack']] = $tmuTempIn;
