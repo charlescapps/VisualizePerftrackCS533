@@ -11,17 +11,26 @@ var masterSet;
 function pauseSlider(){
 	$("#pause").hide();
 	$("#play").show();
-	stopAnimations();
+	//stopAnimations();
 	clearInterval(animateSetInterval);
 }
 
 //Start the animation of the slider
 function playSlider(){
-	clearNodes();
-	$("#pause").show();
-	$("#play").hide();
+
+	var current = parseInt($("#slider").slider("option", "value"));
+
+	if (current >= endingTime )
+	{
+		$("#slider").slider("value", 0);
+	}
+	
 	playAnimations();
 	animateSetInterval = setInterval(animateStep, msPerStep);
+	
+	$("#pause").show();
+	$("#play").hide();
+
 }
 
 //Called when the slider hits a point, either through auto play or user slide
@@ -81,13 +90,7 @@ function createSlider(maxTime) {
 		});
 }
 
-function clearNodes(){
-	for (var i=0; i < 192; i++) {
-		console.log(i);
-		setNodeTemp(i, 0, 0);
-	}
 
-}
 
 function loadDataSet(set) {
 	pauseSlider();
@@ -99,7 +102,10 @@ function loadDataSet(set) {
 		success: function(data) {
 			masterSet = data;
 			createSlider(data.length -1);
-			$("#slider").slider("value", 0);
+			inactivateAllNodes();
+			$("#play, #rewind").show();
+			$("#slider").slider("value", 0).show();
+
 		},
 		error: function(data, error){
 			alert("Error loading data. " + error);
@@ -113,7 +119,7 @@ function loadDataSet(set) {
 $(document).ready(function(){
 	$(":button, .button").button();
 	createSlider(99);
-	loadDataSet("HD");
+//	loadDataSet("HD");
 	
 			
 			
@@ -130,6 +136,10 @@ $(document).ready(function(){
 		$("#slider").slider("value", 0);
 	});
 	
+	//Starter version of the page -- only the open button shows
+	$("#play, #pause, #rewind, #slider").hide();
+	$("#clock").html("To begin, select an experiment");
+	
 	var hd = $("<input type='button' value='High Density' />").button().click(function(){
 		loadDataSet("HD");
 		$("#openDialog").dialog("close");
@@ -144,7 +154,8 @@ $(document).ready(function(){
 	$("#openDialog").dialog({title: "Choose an experiment to load", 
 				autoOpen: false,
 				width: "200px",
-				modal: true
+				modal: true,
+				position: "top"
 				});
 	
 	
